@@ -1,61 +1,111 @@
 import './App.css';
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
 import Resorts from './components/Resorts';
 import Resortdetail from './components/Resortdetail';
 import { useEffect, useState } from 'react';
+import { UserContext } from './UserContext'
+import Resort from './components/Resort';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Bucket from './components/Bucket';
+
 
 function App() {
 
 
- 
- 
+  const [serverData, setServerData] = useState([])
+  const [resortsData, setResortsData] = useState([])
+  const [sortedData, setSortedData] = useState([])
+  const [bucket, setBucket] = useState(0)
+  const [addedResorts, setAddedResorts] = useState([])
+
+
+
+  useEffect(() => {
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+        setServerData(data)
+        setResortsData(data)
+      })
+  }, [])
+
+
+  const handleFilterByTitle = (e) => {
+    const searchValue = e.target.value;
+    console.log(searchValue)
+    if (searchValue === '') {
+      if (sortedData.length === 0) {
+        setResortsData(serverData)
+      } else {
+        setSortedData(serverData)
+      }
+    } else {
+      const filteredData = serverData.filter((item) => item.title.toLowerCase().includes(searchValue))
+      if (sortedData.length === 0) {
+        setResortsData(filteredData)
+      } else {
+        setSortedData(filteredData)
+      }
+    }
+  }
+
+
+  const handleBySort = () => {
+    const sorted = serverData.sort(
+      (p1, p2) => (p1.price < p2.price) ? 1 : (p1.price > p2.price) ? -1 : 0
+    )
+    setSortedData(sorted)
+    setResortsData([])
+  }
+
+
+  const handleAddBucket = (e) => {
+
+    console.log(e.target.value)
+    const resortId = e.target.value;
+    console.log(addedResorts);
+    const id = addedResorts.findIndex(item => item.id == resortId);
+    debugger
+    if (id === -1) {
+    setBucket(prev => prev + 1)
+    const selectedResorts = serverData.filter(item => item.id == resortId);
+    debugger
+    console.log(addedResorts)
+    debugger
+      setAddedResorts(prev => [...prev, ...addedResorts])      
+    }
+  }
 
 
   return (
-    <div className="">
-      <nav className='navbar navbar-expand-lg navbar-light bg-light'>
-        <div className='container px-4 px-lg-5'>
-          <a className="navbar-brand" href="#!">Start Bootstrap</a>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-              <li className="nav-item"><a className="nav-link active" aria-current="page" href="#!">Home</a></li>
-              <li className="nav-item"><a className="nav-link" href="#!">About</a></li>
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
-                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a className="dropdown-item" href="#!">All Products</a></li>
-                  <li><a className="dropdown-divider"></a></li>
-                  <li><a className="dropdown-item" href="#!">Popular Items</a></li>
-                  <li><a className="dropdown-item" href="#!">New Arrivals</a></li>
-                </ul>
-              </li>
-            </ul>
-            <form className="d-flex">
-              <button className="btn btn-outline-dark" type="submit">
-                <i className="bi-cart-fill me-1"></i>
-                Cart
-                <span className="badge bg-dark text-white ms-1 rounded-pill">0</span>
-              </button>
-            </form>
-          </div>
-        </div>
-      </nav>
-      <BrowserRouter>
-        <Switch>
-          <Route exact path='/'>
-            <Resorts />
+    <div>
+      <UserContext.Provider value={{
+        serverData,
+        setServerData,
+        resortsData,
+        setResortsData,
+        sortedData,
+        setSortedData,
+        bucket,
+        setBucket,
+        addedResorts,
+        setAddedResorts,
+        handleFilterByTitle,
+        handleBySort,
+        handleAddBucket,
+      }}>
+        <Routes>
+          <Route path='/' element={<Navbar />}>
+            <Route index element={<Resorts />} />
+            <Route path='resorts/:id' element={<Resortdetail />} />
+            <Route path='bucket' element={<Bucket />} />
           </Route>
-          <Route path='/resorts/:type'>
-            <Resortdetail />
-          </Route>
-        </Switch>
-      </BrowserRouter>
-      <footer className="py-5 bg-dark">
-        <div className="container"><p className="m-0 text-center text-white">Copyright © Your Website 2022</p></div>
-      </footer>
+        </Routes>
+        {/* <Footer/> */}
+      </UserContext.Provider>
     </div>
-
   );
 }
 
