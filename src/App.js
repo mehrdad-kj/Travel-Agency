@@ -25,7 +25,7 @@ function App() {
     fetch('data.json')
       .then(res => res.json())
       .then(data => {
-        console.log(data)
+        // console.log(data)
         setServerData(data)
         setResortsData(data)
       })
@@ -52,7 +52,7 @@ function App() {
   }
 
 
-  const handleBySort = () => {
+  const handleBySortTop = () => {
     const sorted = serverData.sort(
       (p1, p2) => (p1.price < p2.price) ? 1 : (p1.price > p2.price) ? -1 : 0
     )
@@ -60,22 +60,34 @@ function App() {
     setResortsData([])
   }
 
+  const handleBySortDown = () => {
+    const sorted = serverData.sort(
+      (p1, p2) => (p1.price > p2.price) ? 1 : (p1.price < p2.price) ? -1 : 0
+    )
+    setSortedData(sorted)
+    setResortsData([])
+  }
+
 
   const handleAddBucket = (e) => {
-
     console.log(e.target.value)
     const resortId = e.target.value;
-    console.log(addedResorts);
+    // console.log(addedResorts);
     const id = addedResorts.findIndex(item => item.id == resortId);
-    debugger
     if (id === -1) {
     setBucket(prev => prev + 1)
     const selectedResorts = serverData.filter(item => item.id == resortId);
-    debugger
+    setAddedResorts(prev => [...prev, ...selectedResorts])
     console.log(addedResorts)
-    debugger
-      setAddedResorts(prev => [...prev, ...addedResorts])      
     }
+  }
+
+
+  const handleDeleteBucket = (e) => {
+    const deleteId = e.target.value;
+    const deletedResorts = addedResorts.filter(item => item.id != deleteId)
+    setAddedResorts(deletedResorts)
+    setBucket(prev => prev - 1)
   }
 
 
@@ -93,8 +105,10 @@ function App() {
         addedResorts,
         setAddedResorts,
         handleFilterByTitle,
-        handleBySort,
+        handleBySortTop,
         handleAddBucket,
+        handleDeleteBucket,
+        handleBySortDown,
       }}>
         <Routes>
           <Route path='/' element={<Navbar />}>

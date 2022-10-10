@@ -17,7 +17,7 @@ function Resort(props) {
                 <img className="card-img-top" src={props.img} alt="..." />
                 <div className="card-body p-4">
                     <div className="">
-                        <Link to={`resorts/${props.id}`}><h5 className="fw-bolder">{props.title}</h5></Link>
+                        <Link className='text-decoration-none' to={`resorts/${props.id}`}><h5 className="fw-bolder">{props.title}</h5></Link>
                     </div>
                     <div>
                         <p>{`price: ${props.price}`}</p>
